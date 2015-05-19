@@ -10,10 +10,11 @@ require 'markov/generator'
 #@split_sentence = /(?<=[.!?\n])\s+/
 
 split_sentence = /(?<=[.?!])\s+/
-split_words = /([,.?!\n\r])|[\s]/
-replace_chars = /[„':;_"()\n\r]/
+split_words = /([,.?!])|[\s]/
+replace_chars = /[„':;_"()]/
 
-source = "./file_parser_test.txt"
+#source = "./file_parser_test.txt"
+source = "./seed_alts1.txt"
 
 sentences = File.open(source, "r").read.force_encoding(Encoding::UTF_8).split(split_sentence)
 

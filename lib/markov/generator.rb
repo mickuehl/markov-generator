@@ -15,8 +15,8 @@ module Markov
       @depth = depth
       
       @split_sentence = /(?<=[.?!])\s+/
-      @split_words = /([,.?!\n\r])|[\s]/
-      @replace_chars = /[„':;_"()\n\r]/
+      @split_words = /([,.?!])|[\s]/
+      @replace_chars = /[„':;_"()]/
       
       @dictionary = {}
       @start_words = {}
@@ -116,6 +116,27 @@ module Markov
       end
     end
     
+    def dump_dictionary_stats
+      puts "Keys: #{@dictionary.keys.size}"
+      dist = {}
+      n = 0
+      @dictionary.keys.each do |words|
+        following = @dictionary[words]
+        size = following.size
+        if dist[size]
+          dist[size] = dist[size] + following.size
+        else
+          dist[size] = following.size
+        end
+        n = n + following.size
+      end
+      
+      dist.keys.sort.each do |s|
+        puts "BUCKET: #{s}\t=#{dist[s]} (#{((dist[s].to_f/n.to_f)*100).to_i}%)"
+      end
+      
+    end
+    
     private
     
     def parse_text
@@ -167,6 +188,7 @@ module Markov
     end # end parse_text
     
     def next_token
+      
       if @tokens.empty?
         sentence = @unparsed_sentences.slice!(0)
         if sentence
@@ -181,7 +203,7 @@ module Markov
             elsif word.include?(".")
               @tokens << Token.new(".", :stop)
             elsif word == ""
-              # skip
+              # skip blanks
             else
               @tokens << Token.new(word, :word)
             end            
@@ -192,6 +214,8 @@ module Markov
       end
       
       return @tokens.slice!(0) if @tokens
+      
+      @tokens = []
       nil  
     end # end next_token
     
@@ -271,11 +295,3 @@ module Markov
   end
   
 end
-
-#markov = Markov::Generator.new
-
-#Dir["../../public/text/seed_*"].each do | f |
-#  markov.parse_source_file f
-#end
-
-#markov.dump_dictionary
