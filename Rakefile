@@ -14,8 +14,8 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://guides.rubygems.org/specification-reference/ for more options
-  gem.name = "markov_generator"
-  gem.homepage = "http://github.com/ratchetcc/markov_generator"
+  gem.name = "markov-generator"
+  gem.homepage = "http://github.com/ratchetcc/markov-generator"
   gem.license = "MIT"
   gem.summary = %Q{Markov Chain text generator}
   gem.description = %Q{A Markov Chain text generator library}
@@ -45,7 +45,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "markov_generator #{version}"
+  rdoc.title = "markov-generator #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
