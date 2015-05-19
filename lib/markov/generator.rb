@@ -13,8 +13,11 @@ module Markov
     
     def initialize(depth=3)
       @depth = depth
-      @split_words = /([',.?!\n-])|[\s]+/
-      @split_sentence = /(?<=[.!?\n])\s+/
+      
+      @split_sentence = /(?<=[.?!])\s+/
+      @split_words = /([,.?!\n\r])|[\s]/
+      @replace_chars = /[„':;_"()\n\r]/
+      
       @dictionary = {}
       @start_words = {}
       @unparsed_sentences = []
@@ -169,23 +172,15 @@ module Markov
         if sentence
           sentence.each do |word|
             
-            if word.include?("'")
-              @tokens << Token.new("'", :special)
-            elsif word.include?(",")
+            if word.include?(",")
               @tokens << Token.new(",", :special)
             elsif word.include?("?")
               @tokens << Token.new("?", :stop)
             elsif word.include?("!")
               @tokens << Token.new("!", :stop)
-            elsif word.include?(":")
-              @tokens << Token.new(":", :special)
-            elsif word.include?(";")
-              @tokens << Token.new(";", :special)
-            elsif word.include?("-")
-              @tokens << Token.new("-", :special)
             elsif word.include?(".")
               @tokens << Token.new(".", :stop)
-            elsif word == "\n"
+            elsif word == ""
               # skip
             else
               @tokens << Token.new(word, :word)
@@ -201,14 +196,11 @@ module Markov
     end # end next_token
     
     def add_unparsed_sentence(sentence)
-      # replace unwanted characterts
-      sentence.gsub(/["„':_()]/,"")
-      sentence.gsub(/-/,"")
-      sentence.gsub(/,/,"")
       
-      parts = sentence.split(@split_words)
-      if parts && !parts.empty?
-        @unparsed_sentences << parts
+      sentence.gsub!(@replace_chars, "")
+      words = sentence.split(@split_words)
+      if words && !words.empty?
+        @unparsed_sentences << words
       end
       
     end
