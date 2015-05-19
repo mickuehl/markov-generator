@@ -9,7 +9,7 @@ module Markov
   
   class Generator
     
-    attr_reader :depth, :dictionary, :start_words, :unparsed_sentences
+    attr_reader :depth
     
     def initialize(depth=3)
       @depth = depth
