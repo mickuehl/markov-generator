@@ -124,17 +124,18 @@ module Markov
         following = @dictionary[words]
         size = following.size
         if dist[size]
-          dist[size] = dist[size] + following.size
+          dist[size] = dist[size] + 1
         else
           dist[size] = following.size
         end
-        n = n + following.size
+        n = n + 1
       end
       
       dist.keys.sort.each do |s|
-        puts "BUCKET: #{s}\t=#{dist[s]} (#{((dist[s].to_f/n.to_f)*100).to_i}%)"
+        percentage = ((dist[s].to_f/n.to_f)*100).to_i
+        puts "BUCKET: #{s}\t=#{dist[s]} (#{percentage}%)" if percentage > 0
       end
-      
+      n
     end
     
     private
