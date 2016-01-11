@@ -1,8 +1,10 @@
 
 module Markov
   
+  require 'markov/util'
   require 'markov/token'
   require 'markov/parser'
+  require 'markov/dictionary'
   require 'markov/generator'
   
   def generator(depth=3)

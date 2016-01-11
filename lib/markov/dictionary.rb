@@ -2,7 +2,8 @@
 require 'securerandom'
 
 class Markov::Dictionary
-
+  include Markov::Util
+  
   def initialize(depth)
     @depth = depth
     
@@ -12,6 +13,10 @@ class Markov::Dictionary
     srand
   end
     
+  def empty?
+    @dictionary.empty?
+  end
+  
   def dump_startwords
     @start_words.keys.each do |start_words|
       puts "#{start_words}"

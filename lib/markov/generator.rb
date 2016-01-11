@@ -2,14 +2,14 @@
 require 'securerandom'
 
 class Markov::Generator
-
+  include Markov::Util
+  
   def initialize(depth)
     @depth = depth
-    
-    @dictionary = {}
-    @start_words = {}
     @unparsed_sentences = []
     @tokens = []
+    
+    @dict = Markov::Dictionary.new(depth)
     
     srand
   end
@@ -35,8 +35,8 @@ class Markov::Generator
           
           # need to store the words in both the dictionary 
           # and the list of start words
-          add_to_start_words word_seq[0, @depth-1]
-          add_to_dictionary word_seq
+          @dict.add_to_start_words word_seq[0, @depth-1]
+          @dict.add_to_dictionary word_seq
           
           token = parser.next_token
           state = :sentence
@@ -48,7 +48,7 @@ class Markov::Generator
           word_seq << token
           
           # add to the dictionary
-          add_to_dictionary word_seq
+          @dict.add_to_dictionary word_seq
 
           # stop current sequence and start again
           if token == nil || token.kind == :stop
@@ -67,7 +67,7 @@ class Markov::Generator
   end # end parse_text
   
   def generate_sentence(min_length=15)
-    if @dictionary.empty?
+    if @dict.empty?
       raise EmptyDictionaryError.new("The dictionary is empty! Parse a source file/string first!")
     end
     
@@ -75,11 +75,11 @@ class Markov::Generator
     complete_sentence = false
     
     # initialize
-    select_start_words.each {|w| tokens << w}
+    @dict.select_start_words.each {|w| tokens << w}
     prev_token = tokens.last
     
     begin
-      token =  select_next_token tokens.last(@depth-1)
+      token =  @dict.select_next_token tokens.last(@depth-1)
       
       if token.kind == :word
         tokens << token
@@ -99,7 +99,7 @@ class Markov::Generator
           tokens << Markov::Token.new(".", :stop)
         end
         # start a new sentence
-        select_start_words.each {|w| tokens << w}
+        @dict.select_start_words.each {|w| tokens << w}
         prev_token = tokens.last
       end
       
@@ -115,7 +115,7 @@ class Markov::Generator
         complete_sentence = false
     
         # initialize
-        select_start_words.each {|w| tokens << w}
+        @dict.select_start_words.each {|w| tokens << w}
         prev_token = tokens.last
       end
       
@@ -131,93 +131,11 @@ class Markov::Generator
   end
   
   def dump_dictionary
-    @dictionary.keys.each do |keys|
-      following = @dictionary[keys]
-      sentence = []
-      following.each do |word|
-        sentence << "#{word.to_s},"
-      end
-      s = sentence.join(" ")
-      puts "#{keys} => #{s.slice(0,s.length-1)}"
-    end
+    @dict.dump_dictionary
   end
   
   private
   
-  def add_to_start_words(tokens)
-    return if tokens[0].kind != :word
-    
-    tokens[0].word = tokens[0].word.capitalize
-    start_words = tokens_to_words tokens
-    
-    @start_words[start_words] ||= tokens
-  end
   
-  def add_to_dictionary(tokens)
-    token = tokens.last
-    return if token == nil || token.word == ""
-    
-    key_words = tokens_to_words tokens[0, @depth-1]     
-    
-    @dictionary[key_words] ||= []
-    @dictionary[key_words] << token
-  end
-  
-  def tokens_to_words(tokens)
-    words = []
-    tokens.each do |t|
-      words << t.word
-    end
-    words
-  end
-  
-  def tokens_to_sentence(tokens)
-    s = ""
-    tokens.each do |t|
-      if t.kind != :word
-        s << t.word
-      else
-        s << " " + t.word
-      end
-    end
-  
-    s[1, s.length-1]
-  end
-  
-  def tokens_to_debug(tokens)
-    s = ""
-    tokens.each do |t|
-      if t.kind != :word
-        s << " " + t.to_symbol
-      else
-        s << " " + t.word
-      end
-    end
-  
-    s[1, s.length-1]
-  end
-  
-  def select_start_words
-    @start_words[ @start_words.keys[random_number( @start_words.keys.length-1)]]
-  end
-  
-  def select_next_token(tokens)
-    token = @dictionary[ tokens_to_words(tokens)]
-    
-    return Markov::Token.new("X", :noop) if token == nil  
-    token[random_number(tokens.length-1)]
-  end
-  
-  def select_next_word(tokens)
-    token = nil
-    begin
-      token = select_next_token(tokens)
-    end until token.kind == :word
-    token
-  end
-  
-  def random_number(upper_limit)
-    (SecureRandom.random_number * upper_limit).to_i
-  end
   
 end
