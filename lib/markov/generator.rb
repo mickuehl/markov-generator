@@ -51,7 +51,7 @@ class Markov::Generator
           add_to_dictionary word_seq
           
           # stop current sequence and start again
-          if token.kind == :stop
+          if token == nil || token.kind == :stop
             word_seq = []
             state = :start
           end  
@@ -61,6 +61,7 @@ class Markov::Generator
     rescue => e
       # nothing to rescue
       puts e
+      puts e.backtrace
     end
     
   end # end parse_text
@@ -142,7 +143,7 @@ class Markov::Generator
   
   def add_to_dictionary(tokens)
     token = tokens.last
-    return if token.word == ""
+    return if token == nil || token.word == ""
     
     key_words = tokens_to_words tokens[0, @depth-1]     
     

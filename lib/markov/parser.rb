@@ -59,7 +59,7 @@ class Markov::Parser
     return @tokens.slice!(0) if @tokens
     
     @tokens = []
-    nil  
+    nil
   end # end next_token
   
   private
