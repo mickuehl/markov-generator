@@ -1,6 +1,4 @@
 
-require 'markov/token'
-
 class Markov::Parser
 
   def initialize

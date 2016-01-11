@@ -4,4 +4,8 @@ class Markov::Token < Struct.new(:word, :kind)
   #
   # word => string
   # kind => :start, :word, :special, :stop
+  
+  def to_s
+    "#{kind}(#{word})"
+  end
 end
