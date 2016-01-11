@@ -1,15 +1,14 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
-require 'markov/generator'
+require 'markov'
 
-markov = Markov::Generator.new
-markov.parse_source_file "./generator_test2.txt"
-markov.parse_source_file "./generator_test1.txt"
+markov = Markov.generator(3)
+markov.parse_text "./test/texts/generator_test.txt"
 
-#markov.dump_dictionary
-#markov.dump_start_words
-markov.dump_dictionary_stats
+markov.dump_dictionary
+puts ""
 
 1..5.times do
   puts "#{markov.generate_sentence}"
+  puts ""
 end
-
