@@ -1,4 +1,6 @@
 
+require 'securerandom'
+
 class Markov::Generator
 
   def initialize(depth)
@@ -9,6 +11,7 @@ class Markov::Generator
     @unparsed_sentences = []
     @tokens = []
     
+    srand
   end
   
   def parse_text(source)
@@ -62,6 +65,52 @@ class Markov::Generator
     
   end # end parse_text
   
+  def generate_sentence(min_length=20)
+    if @dictionary.empty?
+      raise EmptyDictionaryError.new("The dictionary is empty! Parse a source file/string first!")
+    end
+    
+    tokens = []
+    complete_sentence = false
+    
+    # initialize
+    select_start_words.each {|w| tokens << w}
+    prev_token = tokens.last
+    
+    begin
+      token =  select_next_token tokens.last(@depth-1)
+      
+      if token.kind == :stop
+        token =  select_next_word tokens.last(@depth-1) if prev_token.kind == :special
+        tokens << token
+      elsif token.kind == :special
+        token =  select_next_word tokens.last(@depth-1) if prev_token.kind == :special
+        tokens << token
+      elsif token.kind == :noop
+        token = Token.new(".", :stop)
+        tokens[tokens.length-1] = token
+      else
+        tokens << token
+      end
+      
+      prev_token = token
+      
+      if token.kind == :stop
+        if tokens.size < min_length
+          select_start_words.each {|w| tokens << w}
+          prev_token = tokens.last
+        else
+          complete_sentence = true
+        end
+      end
+      
+      # circuit-breaker
+      complete_sentence = true if tokens.size > min_length*2 
+    end until complete_sentence
+    
+    tokens_to_sentence tokens
+  end #end generate_sentence
+  
   def dump_startwords
     @start_words.keys.each do |start_words|
       puts "#{start_words}"
@@ -107,6 +156,42 @@ class Markov::Generator
       words << t.word
     end
     words
+  end
+  
+  def tokens_to_sentence(tokens)
+    s = ""
+    tokens.each do |t|
+      if t.kind != :word
+        s << t.word
+      else
+        s << " " + t.word
+      end
+    end
+  
+    s[1, s.length-1]
+  end
+  
+  def select_start_words
+    @start_words[ @start_words.keys[random_number( @start_words.keys.length-1)]]
+  end
+  
+  def select_next_token(tokens)
+    token = @dictionary[ tokens_to_words(tokens)]
+    
+    return Token.new("X", :noop) if token == nil  
+    token[random_number(tokens.length-1)]
+  end
+  
+  def select_next_word(tokens)
+    token = nil
+    begin
+      token = select_next_token(tokens)
+    end until token.kind == :word
+    token
+  end
+  
+  def random_number(upper_limit)
+    (SecureRandom.random_number * upper_limit).to_i
   end
   
 end

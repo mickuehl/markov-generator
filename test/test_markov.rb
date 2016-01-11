@@ -9,3 +9,5 @@ markov.parse_text source
 
 #markov.dump_startwords
 markov.dump_dictionary
+
+puts "#{markov.generate_sentence}"
