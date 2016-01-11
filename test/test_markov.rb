@@ -2,12 +2,16 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'markov'
 
-source = ARGV[0]
-
 markov = Markov.generator(3)
-markov.parse_text source
+
+markov.parse_text "./test/texts/alice.txt"
+markov.parse_text "./test/texts/grimm.txt"
 
 #markov.dump_startwords
-markov.dump_dictionary
+#markov.dump_dictionary
 
-puts "#{markov.generate_sentence}"
+1..25.times do
+  puts "\n#{markov.generate_sentence}"
+end
+
+puts "\n"

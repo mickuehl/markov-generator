@@ -49,7 +49,7 @@ class Markov::Generator
           
           # add to the dictionary
           add_to_dictionary word_seq
-          
+
           # stop current sequence and start again
           if token == nil || token.kind == :stop
             word_seq = []
@@ -66,7 +66,7 @@ class Markov::Generator
     
   end # end parse_text
   
-  def generate_sentence(min_length=20)
+  def generate_sentence(min_length=15)
     if @dictionary.empty?
       raise EmptyDictionaryError.new("The dictionary is empty! Parse a source file/string first!")
     end
@@ -81,36 +81,48 @@ class Markov::Generator
     begin
       token =  select_next_token tokens.last(@depth-1)
       
-      if token.kind == :stop
-        token =  select_next_word tokens.last(@depth-1) if prev_token.kind == :special
+      if token.kind == :word
         tokens << token
+        prev_token = token
       elsif token.kind == :special
-        token =  select_next_word tokens.last(@depth-1) if prev_token.kind == :special
-        tokens << token
-      elsif token.kind == :noop
-        token = Token.new(".", :stop)
-        tokens[tokens.length-1] = token
-      else
-        tokens << token
-      end
-      
-      prev_token = token
-      
-      if token.kind == :stop
-        if tokens.size < min_length
-          select_start_words.each {|w| tokens << w}
-          prev_token = tokens.last
-        else
-          complete_sentence = true
+        if prev_token.kind == :word
+          tokens << token
+          prev_token = token
         end
+      elsif token.kind == :stop
+        if prev_token.kind == :word
+          tokens << token
+          prev_token = token
+        end
+      elsif token.kind == :noop
+        if prev_token.kind == :word
+          tokens << Markov::Token.new(".", :stop)
+        end
+        # start a new sentence
+        select_start_words.each {|w| tokens << w}
+        prev_token = tokens.last
       end
       
-      # circuit-breaker
-      complete_sentence = true if tokens.size > min_length*2 
+      if (token.kind == :stop) && (tokens.size > min_length)
+        #puts "-- DONE(#{tokens.size}) #{tokens_to_debug tokens}"
+        return tokens_to_sentence tokens
+      end
+      
+      # default circuit-breaker
+      if tokens.size > min_length * 4
+        # restart
+        tokens = []
+        complete_sentence = false
+    
+        # initialize
+        select_start_words.each {|w| tokens << w}
+        prev_token = tokens.last
+      end
+      
     end until complete_sentence
     
     tokens_to_sentence tokens
-  end #end generate_sentence
+  end
   
   def dump_startwords
     @start_words.keys.each do |start_words|
@@ -172,6 +184,19 @@ class Markov::Generator
     s[1, s.length-1]
   end
   
+  def tokens_to_debug(tokens)
+    s = ""
+    tokens.each do |t|
+      if t.kind != :word
+        s << " " + t.to_symbol
+      else
+        s << " " + t.word
+      end
+    end
+  
+    s[1, s.length-1]
+  end
+  
   def select_start_words
     @start_words[ @start_words.keys[random_number( @start_words.keys.length-1)]]
   end
@@ -179,7 +204,7 @@ class Markov::Generator
   def select_next_token(tokens)
     token = @dictionary[ tokens_to_words(tokens)]
     
-    return Token.new("X", :noop) if token == nil  
+    return Markov::Token.new("X", :noop) if token == nil  
     token[random_number(tokens.length-1)]
   end
   
