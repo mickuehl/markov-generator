@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "markov-generator"
   gem.homepage = "http://github.com/mickuehl/markov-generator"
   gem.license = "MIT"
-  gem.summary = %Q{A Markov Chain text generator library }
-  gem.description = %Q{A Markov Chain text generator library }
+  gem.summary = %Q{Markov Chain text generator}
+  gem.description = %Q{A Markov Chain text generator library}
   gem.email = "hello@ratchet.cc"
   gem.authors = ["Michael Kuehl"]
   # dependencies defined in Gemfile
