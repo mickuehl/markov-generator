@@ -19,7 +19,7 @@ class Markov::Dictionary
   
   def dump_startwords
     @start_words.keys.each do |start_words|
-      puts "#{start_words}"
+      puts "#{start_words} -> #{tokens_to_sentence @dictionary[start_words]}"
     end
   end
   
@@ -71,10 +71,6 @@ class Markov::Dictionary
       token = select_next_token(tokens)
     end until token.kind == :word
     token
-  end
-  
-  def random_number(upper_limit)
-    (SecureRandom.random_number * upper_limit).to_i
   end
   
 end

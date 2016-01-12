@@ -49,7 +49,7 @@ class Markov::Generator
           
           # add to the dictionary
           @dict.add_to_dictionary word_seq
-
+          
           # stop current sequence and start again
           if token == nil || token.kind == :stop
             word_seq = []
@@ -134,8 +134,8 @@ class Markov::Generator
     @dict.dump_dictionary
   end
   
-  private
-  
-  
+  def dump_startwords
+    @dict.dump_startwords
+  end
   
 end
