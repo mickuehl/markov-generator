@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # rcov generated
 coverage
 coverage.data
@@ -47,3 +48,17 @@ pkg
 
 # For rubinius:
 #*.rbc
+=======
+coverage
+coverage.data
+rdoc
+doc
+.yardoc
+.bundle
+pkg
+.DS_Store
+*.tmproj
+*.swp
+*.txt
+test.rb
+>>>>>>> a7175ce063a4b1323b9871627ee1ce21caf8aecf
