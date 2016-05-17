@@ -1,11 +1,8 @@
 
-<<<<<<< HEAD
-module Markov::Util
-=======
 require 'securerandom'
 
 module Markov::Util
-    
+
   def tokens_to_words(tokens)
     words = []
     tokens.each do |t|
@@ -13,7 +10,7 @@ module Markov::Util
     end
     words
   end
-  
+
   def tokens_to_sentence(tokens)
     s = ""
     tokens.each do |t|
@@ -23,10 +20,10 @@ module Markov::Util
         s << " " + t.word
       end
     end
-  
+
     s[1, s.length-1]
   end
-  
+
   def tokens_to_debug(tokens)
     s = ""
     tokens.each do |t|
@@ -36,13 +33,12 @@ module Markov::Util
         s << " " + t.word
       end
     end
-  
+
     s[1, s.length-1]
   end
-  
+
   def random_number(upper_limit)
     (SecureRandom.random_number * upper_limit).to_i
   end
-  
->>>>>>> c81eb8e0ab6d7178faa1c353d9c8cb6ef15e80dd
+
 end

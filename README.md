@@ -1,8 +1,7 @@
-= markov-generator
+# markov-generator
 
 Description goes here.
 
-== Copyright
+## Copyright
 
 Copyright (c) 2016 Michael Kuehl. See LICENSE.txt for
-=======
